@@ -1,0 +1,52 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-deployment #SVC name 
+  labels:
+    app: mysql-deployment
+    tier: database
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:       
+    app: mysql-deployment
+    tier: database
+#  clusterIP: None
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql-deployment
+    tier: database
+spec:
+  containers:
+  - name: mysql
+    image: mysql:5.7
+    env:
+    - name: MYSQL_USER
+      valueFrom:
+        secretKeyRef:
+          name: mysql-credential
+          key: username
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-credential
+          key: root_password
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-credential
+          key: password
+    - name: MYSQL_DATABASE
+      valueFrom:
+        secretKeyRef:
+          name: mysql-credential
+          key: database
+    
+

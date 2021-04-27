@@ -1,0 +1,58 @@
+#Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-first-app-deployment
+  labels:
+    name: my-first-app-deployment
+spec:
+  ports:
+    - nodePort: 30163
+      port: 8080      
+      targetPort: 8080  
+      protocol: TCP
+  selector:           
+    app: my-first-app-deployment
+  type: NodePort 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-first-app-deployment
+spec:
+  selector:
+    matchLabels:
+      app: my-first-app-deployment
+  replicas: 4 
+  template:
+    metadata:
+      labels:
+        app: my-first-app-deployment
+    spec:
+      containers:
+      - name: my-first-app
+        image: my-first-app:4.0
+        env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credential
+              key: username
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credential
+              key: root_password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credential
+              key: password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credential
+              key: database
+        ports:
+        - containerPort: 8080
+
